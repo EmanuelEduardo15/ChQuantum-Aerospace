@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ChQuantum Drone Command</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #050505; color: #00ffcc; font-family: monospace; height: 100vh; overflow: hidden; display: flex; flex-direction: column; user-select: none; }
+        .header { padding: 10px; font-size: 12px; font-weight: bold; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: #000; z-index: 10; }
+        .dashboard { flex: 1; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background: #222; }
+        .panel { background: #080808; position: relative; overflow: hidden; }
+        .panel-title { position: absolute; top: 5px; left: 5px; font-size: 9px; color: #666; text-transform: uppercase; z-index: 5; background: rgba(0,0,0,0.7); padding: 2px 5px; border-radius: 3px;}
+        canvas { width: 100%; height: 100%; display: block; }
+        .controls { padding: 15px; background: #000; border-top: 1px solid #333; display: flex; flex-direction: column; gap: 10px; z-index: 10;}
+        .btn-law { width: 100%; padding: 15px; font-size: 14px; font-weight: bold; border: none; border-radius: 6px; background: #ff0033; color: white; cursor: pointer; transition: 0.3s; }
+        .btn-law.active { background: #00ffcc; color: black; box-shadow: 0 0 15px rgba(0,255,204,0.5); }
+        .slider-group { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #aaa; }
+        input[type=range] { flex: 1; margin: 0 10px; accent-color: #00ffcc; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span>🛸 CHQUANTUM DRONE COMMAND</span>
+        <span id="sysStatus" style="color: #ff0033;">SISTEMA: INSTÁVEL</span>
+    </div>
+    <div class="dashboard">
+        <div class="panel">
+            <div class="panel-title">1. Voo do Drone (Caos K)</div>
+            <canvas id="flightCanvas"></canvas>
+        </div>
+        <div class="panel">
+            <div class="panel-title">2. Telemetria (Feixe 6G)</div>
+            <canvas id="networkCanvas"></canvas>
+        </div>
+        <div class="panel">
+            <div class="panel-title">3. Eletrónica (Fluxo Elétron)</div>
+            <canvas id="elecCanvas"></canvas>
+        </div>
+        <div class="panel" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div class="panel-title">4. Fidelidade (FQ)</div>
+            <div style="font-size: 36px; font-weight: bold; color: #fff;" id="fqDisplay">0%</div>
+            <div style="font-size: 10px; color: #888; margin-top: 5px;" id="kDisplay">Ruído K: 0.0</div>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="btnLaw" class="btn-law">ATIVAR LEI CHQUANTUM (C)</button>
+        <div class="slider-group"><span>C (Campo)</span><input type="range" id="sliderC" min="10" max="100" value="50"><span id="valC">50</span></div>
+        <div class="slider-group"><span>K (Vento/Ruído)</span><input type="range" id="sliderK" min="0" max="100" value="80"><span id="valK">80</span></div>
+    </div>
+    <script>
+        const btnLaw = document.getElementById('btnLaw');
+        const sysStatus = document.getElementById('sysStatus');
+        const fqDisplay = document.getElementById('fqDisplay');
+        const kDisplay = document.getElementById('kDisplay');
+        const sliderC = document.getElementById('sliderC');
+        const sliderK = document.getElementById('sliderK');
+        const valC = document.getElementById('valC');
+        const valK = document.getElementById('valK');
+        let isLawActive = false;
+        let time = 0;
+        const flightCanvas = document.getElementById('flightCanvas');
+        const fCtx = flightCanvas.getContext('2d');
+        const networkCanvas = document.getElementById('networkCanvas');
+        const nCtx = networkCanvas.getContext('2d');
+        const elecCanvas = document.getElementById('elecCanvas');
+        const eCtx = elecCanvas.getContext('2d');
+        function resize() { [flightCanvas, networkCanvas, elecCanvas].forEach(c => { c.width = c.clientWidth; c.height = c.clientHeight; }); }
+        window.addEventListener('resize', resize);
+        setTimeout(resize, 100);
+        btnLaw.onclick = () => {
+            isLawActive = !isLawActive;
+            btnLaw.classList.toggle('active');
+            if (isLawActive) { btnLaw.innerText = "LEI ATIVA (ESTÁVEL)"; sysStatus.innerText = "SISTEMA: ESTÁVEL"; sysStatus.style.color = "#00ffcc"; } 
+            else { btnLaw.innerText = "ATIVAR LEI CHQUANTUM (C)"; sysStatus.innerText = "SISTEMA: INSTÁVEL"; sysStatus.style.color = "#ff0033"; }
+        };
+        [sliderC, sliderK].forEach(s => { s.addEventListener('input', () => { valC.innerText = sliderC.value; valK.innerText = sliderK.value; }); });
+        let droneX = 0, droneY = 0, velX = 0, velY = 0;
+        let trail = [];
+        let electrons = [];
+        for(let i=0; i<40; i++) electrons.push({x: Math.random(), y: Math.random()});
+        let radarAngle = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.05;
+            const C_val = parseFloat(sliderC.value);
+            const K_val = parseFloat(sliderK.value);
+            let fq = isLawActive ? 98.5 : Math.max(15, 100 - K_val);
+            fqDisplay.innerText = fq.toFixed(1) + "%";
+            fqDisplay.style.color = isLawActive ? "#00ffcc" : "#ff3333";
+            kDisplay.innerText = "Ruído K: " + (isLawActive ? "0.1" : K_val).toString();
+            
+            // VOO
+            fCtx.fillStyle = '#080808'; fCtx.fillRect(0, 0, flightCanvas.width, flightCanvas.height);
+            const fcx = flightCanvas.width / 2; const fcy = flightCanvas.height / 2;
+            let windX = Math.sin(time * 3) * (K_val / 5); let windY = Math.cos(time * 4.5) * (K_val / 5);
+            if (isLawActive) { velX -= droneX * (C_val / 300) - windX * 0.1; velY -= droneY * (C_val / 300) - windY * 0.1; } 
+            else { velX += windX; velY += windY; }
+            velX *= 0.9; velY *= 0.9; droneX += velX; droneY += velY;
+            let limitX = flightCanvas.width / 2 - 20; let limitY = flightCanvas.height / 2 - 20;
+            if (droneX > limitX) { droneX = limitX; velX *= -0.5; } if (droneX < -limitX) { droneX = -limitX; velX *= -0.5; }
+            if (droneY > limitY) { droneY = limitY; velY *= -0.5; } if (droneY < -limitY) { droneY = -limitY; velY *= -0.5; }
+            trail.push({x: fcx + droneX, y: fcy + droneY}); if (trail.length > 20) trail.shift();
+            fCtx.beginPath(); fCtx.strokeStyle = isLawActive ? 'rgba(0,255,204,0.5)' : 'rgba(255,0,51,0.5)'; fCtx.lineWidth = 2;
+            trail.forEach((p, i) => i === 0 ? fCtx.moveTo(p.x, p.y) : fCtx.lineTo(p.x, p.y)); fCtx.stroke();
+            fCtx.fillStyle = isLawActive ? '#00ffcc' : '#ff3333'; fCtx.shadowBlur = 10; fCtx.shadowColor = fCtx.fillStyle;
+            fCtx.beginPath(); fCtx.arc(fcx + droneX, fcy + droneY, 8, 0, Math.PI * 2); fCtx.fill(); fCtx.shadowBlur = 0;
+
+            // REDE
+            nCtx.fillStyle = '#080808'; nCtx.fillRect(0, 0, networkCanvas.width, networkCanvas.height);
+            const ncx = networkCanvas.width / 2; const ncy = networkCanvas.height / 2;
+            radarAngle += 0.05;
+            nCtx.beginPath(); nCtx.strokeStyle = isLawActive ? 'rgba(0,255,204,0.2)' : 'rgba(255,0,51,0.2)';
+            nCtx.arc(ncx, ncy, 30, 0, Math.PI * 2); nCtx.arc(ncx, ncy, 60, 0, Math.PI * 2); nCtx.stroke();
+            nCtx.beginPath(); nCtx.moveTo(ncx, ncy);
+            let spread = isLawActive ? 0.05 : (K_val / 50); 
+            nCtx.arc(ncx, ncy, 80, radarAngle - spread, radarAngle + spread); nCtx.closePath();
+            nCtx.fillStyle = isLawActive ? 'rgba(0,255,204,0.5)' : 'rgba(255,0,51,0.5)'; nCtx.fill();
+
+            // ELETRÓNICA
+            eCtx.fillStyle = '#080808'; eCtx.fillRect(0, 0, elecCanvas.width, elecCanvas.height);
+            const ecy = elecCanvas.height / 2;
+            eCtx.fillStyle = 'rgba(0,50,50,0.2)'; eCtx.fillRect(0, ecy - 20, elecCanvas.width, 40);
+            electrons.forEach(e => {
+                e.x += 0.02 + (K_val / 500); if (e.x > 1) e.x = 0;
+                let noise = (Math.random() - 0.5) * (K_val / 50); let targetY = 0.5;
+                if (isLawActive) { e.y += (targetY - e.y) * (C_val / 1000); } else { e.y += noise; }
+                if(e.y < 0.3) e.y = 0.3; if(e.y > 0.7) e.y = 0.7;
+                eCtx.beginPath(); eCtx.fillStyle = isLawActive ? '#00ffcc' : '#ff3333';
+                eCtx.arc(e.x * elecCanvas.width, e.y * elecCanvas.height, 2, 0, Math.PI * 2); eCtx.fill();
+            });
+        }
+        animate();
+    </script>
+</body>
+</html>
