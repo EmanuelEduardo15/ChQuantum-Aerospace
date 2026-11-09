@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ChQuantum Electronics</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #050505; color: #00ffcc; font-family: monospace; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        .header { padding: 12px; font-size: 14px; font-weight: bold; border-bottom: 1px solid #333; background: #000; text-align: center; letter-spacing: 1px;}
+        
+        #simCanvas { width: 100%; height: 55vh; background: #000; display: block; }
+        
+        .controls { flex: 1; padding: 10px 15px; background: #111; border-top: 1px solid #333; display: flex; flex-direction: column; justify-content: space-around; box-sizing: border-box; }
+        
+        .btn-toggle {
+            width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; background: #ff0033; color: white; margin-bottom: 10px;
+        }
+        .btn-toggle.active { background: #00ffcc; color: black; box-shadow: 0 0 15px rgba(0,255,204,0.4); }
+
+        .slider-box { text-align: left; margin-bottom: 8px; }
+        .slider-box label { display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 2px; text-transform: uppercase; }
+        .slider-box span { color: #fff; font-weight: bold; }
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 5px 0; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #00ffcc; margin-top: -8px; cursor: pointer; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #333; border-radius: 2px; }
+
+        .metrics { display: flex; justify-content: space-between; font-size: 12px; background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; }
+        .metric-val { color: #fff; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">⚡ CHQUANTUM: INTEGRIDADE DE SINAL</div>
+    
+    <canvas id="simCanvas"></canvas>
+
+    <div class="controls">
+        <button id="btnToggleLei" class="btn-toggle">DESLIGAR LEI (CAOS)</button>
+
+        <div class="metrics">
+            <div>Fidelidade (FQ): <span class="metric-val" id="fqVal" style="color:#ff3333">0%</span></div>
+            <div>Perda de Sinal: <span class="metric-val" id="refVal">100%</span></div>
+        </div>
+
+        <div class="slider-box">
+            <label>Ruído / Desvio (K) <span id="kLabel">80</span></label>
+            <input type="range" id="sliderK" min="0" max="100" value="80">
+        </div>
+        
+        <div class="slider-box">
+            <label>Campo de Atração (C) <span id="cLabel">10</span></label>
+            <input type="range" id="sliderC" min="1" max="100" value="10">
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const fqVal = document.getElementById('fqVal');
+        const refVal = document.getElementById('refVal');
+        const btnToggleLei = document.getElementById('btnToggleLei');
+        
+        const sliderK = document.getElementById('sliderK');
+        const sliderC = document.getElementById('sliderC');
+        
+        const kLabel = document.getElementById('kLabel');
+        const cLabel = document.getElementById('cLabel');
+
+        let leiAtiva = false;
+
+        btnToggleLei.onclick = () => {
+            leiAtiva = !leiAtiva;
+            if (leiAtiva) {
+                btnToggleLei.innerText = "LEI ATIVA (CORRENTE PERFEITA)";
+                btnToggleLei.classList.add('active');
+            } else {
+                btnToggleLei.innerText = "DESLIGAR LEI (CAOS)";
+                btnToggleLei.classList.remove('active');
+            }
+        };
+
+        function resize() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        setTimeout(resize, 100);
+
+        const numElectrons = 300;
+        const electrons = [];
+
+        for (let i = 0; i < numElectrons; i++) {
+            electrons.push({
+                x: Math.random() * canvas.width,
+                y: (canvas.height / 2) + (Math.random() - 0.5) * 100,
+                size: 1.5 + Math.random()
+            });
+        }
+
+        sliderK.addEventListener('input', () => kLabel.innerText = sliderK.value);
+        sliderC.addEventListener('input', () => cLabel.innerText = sliderC.value);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (canvas.width === 0) return;
+
+            const K_noise = parseFloat(sliderK.value) / 10;   
+            const C_field = parseFloat(sliderC.value) / 100;  
+
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const cy = canvas.height / 2;
+            
+            ctx.fillStyle = 'rgba(0, 40, 40, 0.4)';
+            ctx.fillRect(0, cy - 70, canvas.width, 140);
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, cy - 70, canvas.width, 140);
+
+            let totalError = 0;
+
+            electrons.forEach(e => {
+                e.x += 4; // Velocidade base
+
+                if (e.x > canvas.width) {
+                    e.x = 0;
+                    e.y = cy + (Math.random() - 0.5) * 120;
+                }
+
+                if (!leiAtiva && K_noise > 0) {
+                    e.y += (Math.random() - 0.5) * (K_noise * 2);
+                }
+
+                if (leiAtiva) {
+                    let distToCenter = e.y - cy;
+                    let atracao = distToCenter * (C_field * 2);
+                    e.y -= atracao;
+
+                    if (K_noise > 0) {
+                         e.y += (Math.random() - 0.5) * K_noise;
+                    }
+                }
+
+                if (e.y < cy - 70) e.y = cy - 70;
+                if (e.y > cy + 70) e.y = cy + 70;
+
+                totalError += Math.abs(e.y - cy);
+
+                let stability = 1 - (Math.abs(e.y - cy) / 70);
+                if (stability < 0) stability = 0;
+                
+                let r = Math.floor(255 * (1 - stability));
+                let g = Math.floor(255 * stability);
+                
+                ctx.beginPath();
+                ctx.fillStyle = "rgb(" + r + "," + g + ", 204)";
+                
+                if (stability > 0.8) {
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = "rgb(" + r + "," + g + ", 204)";
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                
+                ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            let avgError = totalError / numElectrons;
+            let fidelity = 100 - (avgError * 1.5); 
+            
+            if (!leiAtiva) fidelity = fidelity * 0.2; 
+            if (fidelity < 0) fidelity = 0;
+            if (fidelity > 100) fidelity = 100;
+
+            fqVal.innerText = fidelity.toFixed(1) + "%";
+            refVal.innerText = (100 - fidelity).toFixed(1) + "%";
+
+            if (fidelity > 85) {
+                fqVal.style.color = "#00ffcc";
+            } else if (fidelity > 50) {
+                fqVal.style.color = "#ffaa00";
+            } else {
+                fqVal.style.color = "#ff3333";
+            }
+        }
+
+        animate();
+    </script>
+</body>
+</html>
