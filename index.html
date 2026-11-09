@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChQuantum Aerospace Hub</title>
+    <style>
+        body { margin: 0; background: #050505; color: #00ffcc; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+        h1 { font-size: 24px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px #00ffcc; margin-bottom: 10px;}
+        p { color: #888; font-size: 12px; margin-bottom: 40px; }
+        .grid { display: grid; gap: 20px; width: 80%; max-width: 400px; }
+        a { text-decoration: none; }
+        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 10px; color: #fff; transition: 0.3s; cursor: pointer; }
+        .card:hover { border-color: #00ffcc; box-shadow: 0 0 15px rgba(0,255,204,0.3); transform: translateY(-2px); }
+        .card h3 { margin: 0 0 5px 0; color: #00ffcc; font-size: 16px; }
+        .card p { margin: 0; font-size: 10px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <h1>🛸 ChQuantum Aerospace</h1>
+    <p>Deterministic Signal & Field Modulation (K = A - B)</p>
+
+    <div class="grid">
+        <!-- Link para o Dashboard do Drone -->
+        <a href="software/drone_command.html">
+            <div class="card">
+                <h3>1. Drone Command Center</h3>
+                <p>Real-time Flight, 6G & Electron Stabilization</p>
+            </div>
+        </a>
+
+        <!-- Link para a Eletrónica -->
+        <a href="software/electronics.html">
+            <div class="card">
+                <h3>2. PCB Signal Integrity</h3>
+                <p>Electron Flow & Noise Cancellation</p>
+            </div>
+        </a>
+
+        <!-- Link para o Artigo no Zenodo (Substitua o link se necessário) -->
+        <a href="https://orcid.org/0009-0005-0777-963X" target="_blank">
+            <div class="card" style="border-color: #ffaa00;">
+                <h3 style="color: #ffaa00;">📄 Published Research</h3>
+                <p>Read the full scientific paper on ORCID</p>
+            </div>
+        </a>
+    </div>
+
+</body>
+</html>
