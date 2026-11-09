@@ -1,19 +1,16 @@
 # 🛸 ChQuantum Aerospace: Deterministic Signal & Field Modulation
 
 **Inventor:** Emanuel Eduardo 
-**Status:** Proof of Concept (PoC) / Patent Pending
+**Status:** Software Proof of Concept (PoC) / Patent Pending
 **ORCID:** [0009-0005-0777-963X](https://orcid.org/0009-0005-0777-963X)
 
 ## 📖 Overview
-The **Quadratic Double Projection Law (K = A - B)** is a deterministic mathematical framework that replaces heavy AI neural networks and complex optical polishing with pure geometry. This repository contains the software simulations and hardware CAD models demonstrating its application in aerospace engineering, drone stabilization, and electronics.
+The **Quadratic Double Projection Law (K = A - B)** is a deterministic mathematical framework that replaces heavy AI neural networks with pure geometry. This repository currently contains the **Software Simulations** demonstrating its application in drone flight stabilization, 6G telemetry, and PCB electron flow.
 
 ## 📁 Repository Structure
-*   `/docs`: Full Technical Report and Published Paper.
-*   `/hardware`: Aspheric lens CAD model (`.stl`) ready for 3D printing.
 *   `/software`: Interactive offline simulations (HTML/JS).
     *   `drone_command.html`: Complete dashboard for Flight Stabilization, 6G Telemetry, and Electron Flow.
-    *   `electronics_sim.html`: PCB signal integrity simulator.
-*   `/media`: Video demonstration.
+    *   `electronics.html`: PCB signal integrity simulator.
 
 ## 🚀 How to Test (No internet required)
 1. Download the `.html` files from the `/software` folder.
@@ -21,9 +18,9 @@ The **Quadratic Double Projection Law (K = A - B)** is a deterministic mathemati
 3. Toggle the **"Activate ChQuantum Law"** button to see the transition from chaotic turbulence (Red) to perfect isometric stability (Green).
 
 ## 🛠 Next Steps & Collaboration
-I am looking for engineering partners and R&D teams to:
-1. 3D print the aspheric lens and test the focal point.
-2. Integrate the stabilization algorithm into a drone's flight controller (ESP32/Pixhawk).
+This project is currently in the **Software Phase**. I am looking for hardware engineering partners (Aerospace/Drones) to:
+1. Translate the JavaScript stabilization algorithm into C++ for flight controllers (Pixhawk/ESP32).
+2. 3D print the aspheric lens (code available upon request) and test the focal point.
 
 ## 📩 Contact & Connect
 *   **📧 Email:** chandeeduardo15@gmail.com
