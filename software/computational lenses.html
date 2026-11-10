@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<title>ChQuantum Pro Camera</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;min-height:100%;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;user-select:none;overscroll-behavior:none;touch-action:manipulation}body{position:relative} @supports(height:100dvh){html,body{height:100dvh;min-height:100dvh}}
+#videoElement{position:fixed;left:0;top:0;width:100%;height:100%;height:100dvh;object-fit:cover;z-index:1;background:#000;display:none}#glCanvas{position:fixed;left:0;top:0;width:100%;height:100%;height:100dvh;z-index:2;display:block}
+#start-screen{position:fixed;left:0;top:0;width:100%;height:100%;height:100dvh;background:#000;z-index:99;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px}
+#start-screen h1{color:#00ffcc;margin:0}#start-screen p{color:#888;font-size:14px}
+button{cursor:pointer}#start-btn{padding:18px 32px;background:#00ffcc;color:#000;border:0;border-radius:10px;font-weight:800;font-size:16px}
+#debug-msg{color:#ff7777;font:12px monospace;max-width:90vw;overflow-wrap:anywhere}
+#hud{position:fixed;left:0;top:0;width:100%;height:100%;height:100dvh;z-index:10;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:calc(16px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom))}
+.top-bar{display:flex;justify-content:space-between;align-items:flex-start}.metric-box{background:#0009;border:1px solid #00ffcc;border-radius:8px;padding:8px 12px;color:#00ffcc;font:12px monospace;line-height:1.6}.metric-box span{color:#fff;font-weight:bold}
+#btnSettings{pointer-events:auto;width:45px;height:45px;border-radius:50%;background:#0009;border:1px solid #00ffcc;color:#00ffcc;font-size:20px}
+.crosshair{position:absolute;top:50%;left:50%;width:40px;height:40px;transform:translate(-50%,-50%);border:1px solid #00ffcc80;border-radius:50%}.crosshair:before,.crosshair:after{content:"";position:absolute;background:#00ffcc}.crosshair:before{top:50%;left:-10px;width:60px;height:1px}.crosshair:after{left:50%;top:-10px;height:60px;width:1px}
+.bottom-bar{display:flex;justify-content:center;pointer-events:auto}#btnCapture{width:78px;height:78px;border-radius:50%;background:#ffffff33;border:3px solid white;display:grid;place-items:center}#btnCapture:active{transform:scale(.92)}.btn-inner{width:58px;height:58px;border-radius:50%;background:white}
+#settings-panel{position:fixed;z-index:20;bottom:-100%;left:0;width:100%;background:#101010f2;border-top:1px solid #333;border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));transition:bottom .3s;pointer-events:auto;backdrop-filter:blur(15px)}
+#settings-panel.active{bottom:0}.panel-title{text-align:center;font-size:14px;font-weight:bold;margin-bottom:16px;letter-spacing:1px}.slider-group{margin-bottom:13px}.slider-header{display:flex;justify-content:space-between;font-size:11px;color:#00ffcc;text-transform:uppercase;margin-bottom:5px}input[type=range]{width:100%;accent-color:#00ffcc}.scale-labels{display:flex;justify-content:space-between;font-size:9px;color:#8aa;margin-top:3px;padding:0 2px}
+</style>
+</head>
+<body>
+<div id="start-screen"><h1>ChQuantum Pro</h1><p>Lente Computacional &amp; Dinâmica Fotónica</p><button id="start-btn">LIGAR CÂMARA</button><p id="debug-msg">A aplicação pode funcionar offline depois de instalada e aberta uma vez online.</p></div>
+<video id="videoElement" autoplay playsinline webkit-playsinline muted></video><canvas id="glCanvas"></canvas>
+<div id="hud">
+ <div class="top-bar"><div class="metric-box">FQ*: <span id="valFQ">--%</span><br>ISO estimado: <span id="valISO">100</span></div><div style="display:flex;gap:8px;pointer-events:auto"><button id="btnSwitch" aria-label="Trocar câmara" style="height:45px;padding:0 12px;border-radius:24px;background:#0009;border:1px solid #00ffcc;color:#00ffcc">↻ Câmara</button><button id="btnGallery" aria-label="Galeria" style="height:45px;padding:0 12px;border-radius:24px;background:#0009;border:1px solid #00ffcc;color:#00ffcc">▣ Fotos</button><button id="btnSettings" aria-label="Configurações">⚙️</button></div></div>
+ <div class="crosshair"></div><div class="bottom-bar"><button id="btnCapture" aria-label="Capturar"><div class="btn-inner"></div></button></div>
+</div>
+<div id="settings-panel">
+ <div class="panel-title">CHQUANTUM OPTICS ENGINE</div>
+ <div class="slider-group"><div class="slider-header"><span>Curvatura (C)</span><span id="valC">0.2</span></div><input type="range" id="sliderC" min="-2" max="2" step="0.1" value="0.2"></div>
+ <div class="slider-group"><div class="slider-header"><span>Desvio / Ganho (K)</span><span id="valK">1.0</span></div><input type="range" id="sliderK" min="-3" max="3" step="0.1" value="1.0"><div class="scale-labels"><span>−3</span><span>−2</span><span>−1</span><span>0</span><span>+1</span><span>+2</span><span>+3</span></div></div>
+ <div class="slider-group"><div class="slider-header"><span>Zoom (Z)</span><span id="valZ">1.0</span></div><input type="range" id="sliderZ" min="0.5" max="4" step="0.1" value="1.0"></div>
+ <div class="slider-group"><div class="slider-header"><span>Fronteira B (limiar)</span><span id="valB">0.05</span></div><input type="range" id="sliderB" min="0" max="0.2" step="0.01" value="0.05"></div>
+</div>
+<script>
+'use strict';
+const video=document.getElementById('videoElement'), canvas=document.getElementById('glCanvas');
+const startScreen=document.getElementById('start-screen'), startBtn=document.getElementById('start-btn'), debugMsg=document.getElementById('debug-msg');
+const panel=document.getElementById('settings-panel');
+const sliders={C:document.getElementById('sliderC'),K:document.getElementById('sliderK'),Z:document.getElementById('sliderZ'),B:document.getElementById('sliderB')};
+const labels={C:document.getElementById('valC'),K:document.getElementById('valK'),Z:document.getElementById('valZ'),B:document.getElementById('valB')};
+const valFQ=document.getElementById('valFQ'),valISO=document.getElementById('valISO');
+let gl,program,texture,uniforms={},running=false,stream=null,raf=0,fqTimer=0;
+let cameraFacing='user';
+const DB_NAME='ChQuantumCameraDB', STORE='captures';
+function openCaptureDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>req.result.createObjectStore(STORE,{keyPath:'id',autoIncrement:true});req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+async function saveCapture(blob){const db=await openCaptureDB();return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).add({blob,created:new Date().toISOString()});tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);});}
+async function showGallery(){try{const db=await openCaptureDB();const rows=await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readonly');const req=tx.objectStore(STORE).getAll();req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});const w=window.open('','_blank');if(!w){alert('O Safari bloqueou a janela. Permita pop-ups ou use a partilha das fotografias.');return;}w.document.write('<meta name="viewport" content="width=device-width"><title>ChQuantum — Fotografias</title><body style="background:#080808;color:#00ffcc;font-family:Arial;padding:16px"><h2>CHQUANTUM — GALERIA LOCAL</h2><p>Fotografias guardadas neste iPhone.</p><div id="grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div></body>');const grid=w.document.getElementById('grid');rows.reverse().forEach((row)=>{const url=URL.createObjectURL(row.blob);const card=w.document.createElement('div');const img=w.document.createElement('img');img.src=url;img.style='width:100%;border-radius:8px';const a=w.document.createElement('a');a.href=url;a.download='ChQuantum_'+row.id+'.jpg';a.textContent='Guardar imagem';a.style='color:white;display:block;padding:8px';card.append(img,a);grid.append(card);});if(!rows.length)grid.innerHTML='<p>Ainda não existem fotografias.</p>'; }catch(e){alert('Não foi possível abrir a galeria: '+e.message);}}
+document.getElementById('btnSwitch').onclick=async()=>{
+ const next=cameraFacing==='user'?'environment':'user';
+ try{
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  stream=await requestCamera(next);
+  cameraFacing=next;
+  video.srcObject=stream;
+  video.style.display='block';
+  await video.play();
+ }catch(e){
+  debugMsg.textContent='Não foi possível trocar de câmara: '+e.message;
+  try{
+   stream=await requestCamera(cameraFacing);
+   video.srcObject=stream;
+   await video.play();
+  }catch(retryError){debugMsg.textContent='Câmara indisponível: '+retryError.message;}
+ }
+};
+document.getElementById('btnGallery').onclick=showGallery;
+Object.keys(sliders).forEach(k=>sliders[k].addEventListener('input',()=>labels[k].textContent=sliders[k].value));
+document.getElementById('btnSettings').onclick=()=>panel.classList.toggle('active');
+
+const vs=`attribute vec2 a_position; attribute vec2 a_texCoord; varying vec2 v_texCoord;
+void main(){gl_Position=vec4(a_position,0.0,1.0);v_texCoord=a_texCoord;}`;
+const fs=`precision highp float;
+uniform sampler2D u_image; uniform vec2 u_res; uniform float u_videoAspect; uniform float u_zoom,u_C,u_K,u_Noise;
+varying vec2 v_texCoord;
+float getLum(vec4 color){return dot(color.rgb,vec3(0.299,0.587,0.114));}
+void main(){
+ vec2 uv=v_texCoord-0.5;
+ float aspect_screen=u_res.x/u_res.y;
+ float aspect_video=u_videoAspect;
+ if(aspect_screen<aspect_video) uv.x*=aspect_video/aspect_screen;
+ else uv.y*=aspect_screen/aspect_video;
+ uv/=max(u_zoom,0.1);
+ float r=length(uv);
+ vec2 direction=(r>0.000001)?uv/r:vec2(0.0);
+ float r_new=r*(1.0+u_C*r*r);
+ uv=direction*r_new+0.5;
+ if(uv.x<0.0||uv.x>1.0||uv.y<0.0||uv.y>1.0){gl_FragColor=vec4(0.0,0.0,0.0,1.0);return;}
+ vec4 center=texture2D(u_image,uv);float L_center=getLum(center);
+ vec2 px=vec2(1.0)/u_res;float C_mean=0.0;
+ C_mean+=getLum(texture2D(u_image,uv+vec2(0.0,px.y)));
+ C_mean+=getLum(texture2D(u_image,uv-vec2(0.0,px.y)));
+ C_mean+=getLum(texture2D(u_image,uv+vec2(px.x,0.0)));
+ C_mean+=getLum(texture2D(u_image,uv-vec2(px.x,0.0)));
+ C_mean+=getLum(texture2D(u_image,uv+vec2(px.x,px.y)));
+ C_mean+=getLum(texture2D(u_image,uv-vec2(px.x,px.y)));
+ C_mean+=getLum(texture2D(u_image,uv+vec2(px.x,-px.y)));
+ C_mean+=getLum(texture2D(u_image,uv-vec2(px.x,-px.y)));
+ C_mean/=8.0;
+ float K_val=L_center-C_mean;
+ if(abs(K_val)<u_Noise)K_val=0.0;
+ float denom=max(4.0*C_mean,0.0001);
+ float A=pow(max(C_mean+K_val,0.0),2.0)/denom;
+ float B=pow(max(C_mean-K_val,0.0),2.0)/denom;
+ vec3 finalColor=center.rgb+vec3((A-B)*u_K);
+ finalColor=pow(max(finalColor,vec3(0.0)),vec3(0.9));
+ gl_FragColor=vec4(clamp(finalColor,0.0,1.0),1.0);
+}`;
+function compile(type,source){
+ const sh=gl.createShader(type);gl.shaderSource(sh,source);gl.compileShader(sh);
+ if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh)||'Erro ao compilar shader');
+ return sh;
+}
+function setupWebGL(){
+ gl=canvas.getContext('webgl',{alpha:false,antialias:false,preserveDrawingBuffer:true});
+ if(!gl)throw new Error('WebGL não está disponível neste navegador.');
+ program=gl.createProgram();gl.attachShader(program,compile(gl.VERTEX_SHADER,vs));gl.attachShader(program,compile(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);
+ if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program)||'Erro ao ligar programa WebGL');
+ gl.useProgram(program);
+ const pos=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,pos);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+ let loc=gl.getAttribLocation(program,'a_position');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+ const tex=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,tex);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,0,1,0,0,1,1,1]),gl.STATIC_DRAW);
+ loc=gl.getAttribLocation(program,'a_texCoord');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+ texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+ uniforms={res:gl.getUniformLocation(program,'u_res'),videoAspect:gl.getUniformLocation(program,'u_videoAspect'),zoom:gl.getUniformLocation(program,'u_zoom'),C:gl.getUniformLocation(program,'u_C'),K:gl.getUniformLocation(program,'u_K'),noise:gl.getUniformLocation(program,'u_Noise')};
+ return true;
+}
+function resize(){
+ const dpr=Math.min(window.devicePixelRatio||1,2);
+ const vw=(window.visualViewport&&window.visualViewport.width)||window.innerWidth;
+ const vh=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;
+ canvas.width=Math.max(1,Math.round(vw*dpr));canvas.height=Math.max(1,Math.round(vh*dpr));
+ if(gl){gl.viewport(0,0,canvas.width,canvas.height);gl.uniform2f(uniforms.res,canvas.width,canvas.height);}
+}
+function render(){
+ if(!running||!gl)return;
+ if(video.readyState>=2){
+  gl.viewport(0,0,canvas.width,canvas.height);gl.bindTexture(gl.TEXTURE_2D,texture);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,video);
+  gl.uniform1f(uniforms.videoAspect,(video.videoWidth&&video.videoHeight)?video.videoWidth/video.videoHeight:(16.0/9.0));gl.uniform1f(uniforms.zoom,parseFloat(sliders.Z.value));gl.uniform1f(uniforms.C,parseFloat(sliders.C.value));
+  gl.uniform1f(uniforms.K,parseFloat(sliders.K.value));gl.uniform1f(uniforms.noise,parseFloat(sliders.B.value));
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+ }
+ raf=requestAnimationFrame(render);
+}
+const sampleCanvas=document.createElement('canvas');sampleCanvas.width=50;sampleCanvas.height=50;
+const sampleCtx=sampleCanvas.getContext('2d',{willReadFrequently:true});let history=[];
+function startFQ(){
+ fqTimer=setInterval(()=>{
+  if(!running||video.readyState<2)return;
+  sampleCtx.drawImage(video,0,0,50,50);const d=sampleCtx.getImageData(0,0,50,50).data;let sum=0;
+  for(let i=0;i<d.length;i+=4)sum+=d[i]*.299+d[i+1]*.587+d[i+2]*.114;
+  const flux=sum/2500;history.push(flux);if(history.length>30)history.shift();
+  const mean=history.reduce((a,b)=>a+b,0)/history.length;
+  const variance=history.reduce((a,b)=>a+(b-mean)**2,0)/history.length;
+  const sd=Math.sqrt(variance);let fq=mean>1?(1-sd/mean)*100:0;fq=Math.max(0,Math.min(100,fq));
+  valFQ.textContent=fq.toFixed(1)+'%';valISO.textContent=Math.floor(100+(100-fq)*30);
+  valFQ.style.color=fq<80?'#ff3333':fq<95?'#ffaa00':'#00ffcc';
+ },200);
+}
+async function requestCamera(facing='user'){
+ if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+  throw new Error('Este navegador não disponibiliza a câmara. Abre o endereço HTTPS diretamente no Safari.');
+ }
+ const constraints={audio:false,video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}}};
+ return await navigator.mediaDevices.getUserMedia(constraints);
+}
+startBtn.onclick=async()=>{
+ startBtn.disabled=true;
+ startBtn.textContent='A LIGAR…';
+ debugMsg.textContent='A solicitar permissão da câmara. Escolhe Permitir quando o iPhone perguntar…';
+ try{
+  if(!window.isSecureContext) throw new Error('É necessário abrir a aplicação através de um endereço HTTPS, não como ficheiro local.');
+  stream=await requestCamera(cameraFacing);
+  video.srcObject=stream;
+  video.style.display='block';
+  await new Promise((resolve,reject)=>{
+   const timer=setTimeout(()=>reject(new Error('A câmara demorou demasiado tempo a iniciar. Fecha e volta a abrir a aplicação.')),10000);
+   video.onloadedmetadata=()=>{clearTimeout(timer);resolve();};
+   video.onerror=()=>{clearTimeout(timer);reject(new Error('O vídeo da câmara não conseguiu carregar.'));};
+  });
+  await video.play();
+  startScreen.style.display='none';
+  running=true;
+  try{
+   setupWebGL();
+   resize();
+   render();
+   video.style.display='none';
+  }catch(glError){
+   // The live video remains visible even if WebGL is unavailable.
+   canvas.style.display='none';
+   debugMsg.textContent='Câmara ativa; processamento gráfico indisponível: '+glError.message;
+  }
+  startFQ();
+ }catch(e){
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  video.style.display='none';
+  debugMsg.textContent='Não foi possível iniciar a câmara: '+(e.name?e.name+' — ':'')+e.message;
+  startBtn.disabled=false;
+  startBtn.textContent='TENTAR NOVAMENTE';
+ }
+};
+window.addEventListener('resize',resize);if(window.visualViewport)window.visualViewport.addEventListener('resize',resize);
+document.getElementById('btnCapture').onclick=async()=>{
+ if(!running)return;
+ try{
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.95));
+  if(!blob)throw new Error('Não foi possível criar a imagem.');
+  await saveCapture(blob);
+  const file=new File([blob],'ChQuantum_Pro_'+Date.now()+'.jpg',{type:'image/jpeg'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'ChQuantum Pro'});}
+  else{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+ }catch(e){debugMsg.textContent='Captura: '+e.message;}
+};
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden&&stream){stream.getTracks().forEach(t=>t.stop());stream=null;running=false;cancelAnimationFrame(raf);clearInterval(fqTimer);}
+});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('SW:',e)));
+</script>
+</body></html>
