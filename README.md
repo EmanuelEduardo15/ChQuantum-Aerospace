@@ -1,31 +1,83 @@
 
-# 🛸 ChQuantum Aerospace: Deterministic Signal & Field Modulation
+# 🛸 ChQuantum Aerospace
+## Deterministic Signal, Field and Computational Optics Modulation
 
 **Inventor:** Emanuel Eduardo  
 **Organization:** ChQuantum Technologies  
-**Status:** Software Proof of Concept (PoC) / Patent Pending  
+**Status:** Software Prototype (PoC) / Patent Application Pending  
 **ORCID:** [0009-0005-0777-963X](https://orcid.org/0009-0005-0777-963X)
 
 ---
 
-## 📖 Overview
+## 1. OVERVIEW
 
-The **Quadratic Double Projection Law (K = A - B)** is a deterministic mathematical framework developed to explore geometric transformations, signal modulation, and computational field interactions.
+ChQuantum Aerospace is a technological research and development project based on the **Quadratic Double Projection Law**, a deterministic mathematical formulation designed to explore geometric transformations, signal modulation, field trajectory control, and computational image processing.
 
-The ChQuantum Aerospace Hub integrates software prototypes exploring applications in:
+The formulation establishes a relationship between two complementary quadratic projections, A and B, controlled by the parameters C and K.
 
-- Aerospace and drone flight stabilization.
-- 6G telemetry and signal modulation.
-- PCB signal integrity and electron flow simulation.
-- Computational optics and aspheric lens modeling.
-- Real-time camera image signal processing (ISP).
-- Deterministic image reconstruction and noise reduction.
+The project explores applications in:
 
-This repository contains interactive software prototypes developed using HTML, CSS, and JavaScript.
+- Aerospace engineering and drone flight stabilization.
+- Signal modulation and 6G telemetry.
+- Signal integrity in electronic systems.
+- Computational optics.
+- Geometric design of aspheric lenses.
+- Real-time image processing (ISP).
+- Image magnification and noise reduction.
+
+This repository contains interactive prototypes developed using HTML, CSS, and JavaScript.
 
 ---
 
-## 📁 Repository Structure
+## 2. MATHEMATICAL FOUNDATION
+
+The Quadratic Double Projection Law is defined by the following expressions:
+
+$$
+A=\frac{(C+K)^2}{4C}
+$$
+
+$$
+B=\frac{(C-K)^2}{4C}
+$$
+
+The fundamental invariant is:
+
+$$
+\boxed{K=A-B}
+$$
+
+### Meaning of the Variables
+
+**C — Trajectory Distortion Parameter**
+
+Controls the level of geometric distortion in the light field trajectory. It represents the control parameter governing curvature and the geometric configuration of the field.
+
+**K — Deviation Parameter**
+
+Represents the dimensional deviation associated with trajectory transformation and the perturbation experienced by a light particle when passing through a non-isometric field.
+
+**A — Magnification Projection**
+
+Represents the positive quadratic projection associated with magnification.
+
+**B — Reduction Projection**
+
+Represents the complementary quadratic projection associated with geometric reduction.
+
+The relationship between the two projections establishes:
+
+$$
+\boxed{A-B=K}
+$$
+
+This identity constitutes the central mathematical invariant of the formulation.
+
+---
+
+## 3. REPOSITORY STRUCTURE
+
+The project is organized as follows:
 
 ```text
 /
@@ -37,9 +89,17 @@ This repository contains interactive software prototypes developed using HTML, C
     └── Computational_lenses.html
 ```
 
-## 🚀 Software Modules
+### Main Page
 
-### 1. Drone Command Center
+**index.html**
+
+Central access portal to the ChQuantum Aerospace modules.
+
+---
+
+## 4. TECHNOLOGICAL MODULES
+
+### 4.1. DRONE COMMAND CENTER
 
 **File:** `software/drone_command.html`
 
@@ -47,139 +107,218 @@ Interactive aerospace simulation exploring:
 
 - Flight stabilization.
 - 6G telemetry simulation.
-- Electron flow modeling.
+- Electronic flow modeling.
 - ChQuantum deterministic stabilization.
+- Geometric signal modulation.
 
-### 2. PCB Signal Integrity
+**Objective:** To explore the application of deterministic mathematical transformations in aerospace control systems.
+
+### 4.2. PCB SIGNAL INTEGRITY
 
 **File:** `software/electronics.html`
 
 Electronic simulation exploring:
 
-- PCB signal integrity.
-- Electron flow behavior.
-- Signal noise cancellation.
-- Deterministic signal modulation.
+- Signal integrity in printed circuit boards.
+- Electronic flow behavior.
+- Signal noise reduction.
+- Electronic signal modulation.
+- Deterministic processing architectures.
 
-### 3. Real-Time Camera ISP – Computational Lenses
+**Objective:** To investigate applications of the mathematical formulation in signal integrity and the control of electronic disturbances.
+
+### 4.3. COMPUTATIONAL LENSES — ASPHERIC LENSES AND IMAGE PROCESSING
 
 **File:** `software/Computational_lenses.html`
 
-A computational optics and image-processing prototype based on the Quadratic Double Projection Law.
+This module applies the Quadratic Double Projection Law to computational image processing and the geometric design of aspheric lenses.
 
-Main capabilities:
+#### A — Magnification
 
-- Real-time camera image processing.
-- Deterministic noise reduction.
-- Computational lens modeling.
-- Optical modulation through quadratic projections.
-- Live video processing without AI-based image generation.
+Projection A controls the image magnification component.
 
-The module explores an alternative mathematical approach to conventional Image Signal Processing (ISP), applying deterministic geometric transformations to image data.
+Increasing A enables greater visual magnification within the processing system.
+
+#### B — Reduction
+
+Projection B represents the complementary component of geometric reduction.
+
+It is used in the mathematical architecture to control the relationship between the two projections.
+
+#### K — Deviation Control
+
+Parameter K controls the difference between A and B.
+
+In the computational implementation, adjusting K is associated with visual image noise reduction.
+
+#### C — Trajectory Distortion Control
+
+Parameter C controls the level of geometric distortion in the light field trajectory.
+
+Its use makes it possible to explore different geometric configurations in field modeling and optical surface design.
+
+### 4.3.1. EXPERIMENTAL OBSERVATION — IPHONE CAMERA
+
+Initial tests were conducted using the front-facing camera of an iPhone.
+
+During the experiments, the following behaviors were observed:
+
+1. Increasing A produced greater image magnification.
+2. Adjusting K produced a visual reduction in image noise.
+3. The front-facing camera achieved greater visual magnification than the rear-facing camera during the test performed.
+
+These observations demonstrate the functional behavior exhibited by the prototype and provide a basis for subsequent quantitative evaluation.
+
+### 4.3.2. ASPHERIC LENS DESIGN
+
+The mathematical formulation is also explored in the geometric design of aspheric optical surfaces.
+
+Unlike a conventional spherical surface, an aspheric surface allows curvature to vary along its radial extent.
+
+The ChQuantum proposal consists of using parameters C and K, together with projections A and B, to define and control optical geometries.
+
+Potential applications:
+
+- Magnifying lenses.
+- Camera optical systems.
+- Telescopes and observation instruments.
+- Optical aberration correction.
+- Compact optical systems.
+- 3D-printed lens prototypes.
+
+**Objective:** To establish a connection between the mathematical formulation, computational image processing, and the physical realization of optical components.
 
 ---
 
-## 🧮 Mathematical Foundation
+## 5. VALIDATION AND EXPERIMENTAL EVALUATION
 
-The framework is based on the following quadratic identities:
+The ChQuantum project distinguishes between three dimensions of development:
 
-\[
-A=\frac{(C+K)^2}{4C}
-\]
+- Mathematical formulation.
+- Computational implementation and simulation.
+- Physical experimentation and quantitative evaluation.
 
-\[
-B=\frac{(C-K)^2}{4C}
-\]
+The image processing prototype exhibited the following observed behaviors:
 
-The fundamental invariant is:
+| Parameter | Observed Behavior |
+|---|---|
+| A | Image magnification |
+| B | Complementary reduction projection |
+| K | Visual noise reduction |
+| C | Geometric control of trajectory distortion |
 
-\[
-\boxed{K=A-B}
-\]
+### Metrics for Quantitative Evaluation
 
-Where:
+Future experiments should include:
 
-- **C:** Reference curvature parameter.
-- **K:** Projection difference parameter.
-- **A:** Positive quadratic projection.
-- **B:** Negative quadratic projection.
+- Magnification factor.
+- Signal-to-noise ratio (SNR).
+- Peak signal-to-noise ratio (PSNR).
+- Structural similarity index (SSIM).
+- Image sharpness.
+- Color preservation.
+- Effective spatial resolution.
+- Geometric trajectory distortion.
 
-These identities constitute the mathematical foundation of the software implementations presented in this repository.
-
----
-
-## 🧪 How to Test
-
-### Offline Testing
-
-1. Download the HTML files from the `/software` directory.
-2. Open them using Safari, Chrome, or another compatible browser.
-3. For the camera module, grant camera access when requested.
-4. Activate the ChQuantum processing functionality.
-5. Observe and compare the processed output with the original input.
-
-**Technical Note:** Camera access and certain browser APIs may require HTTPS or localhost. Offline functionality depends on browser permissions and the implementation of each module.
+The objective is to quantify the relationship between the mathematical parameters and the performance of the implemented systems.
 
 ---
 
-## 🛠 Development Roadmap & Collaboration
+## 6. DEVELOPMENT ROADMAP
 
-The project is focused on software prototyping, engineering development, and experimental validation.
+### 6.1. Aerospace Engineering
 
-Potential development directions include:
+- Conversion of stabilization algorithms to C++.
+- Development for embedded flight controllers.
+- Integration with Pixhawk and ESP32.
+- Investigation of applications in trajectory control systems.
 
-**1. Aerospace Engineering**
-- Translation of stabilization algorithms into C++.
-- Exploration of embedded flight-controller implementations.
-- Pixhawk and ESP32 integration.
+### 6.2. Computational Optics
 
-**2. Computational Optics**
-- Development of aspheric lens prototypes.
-- 3D printing and optical manufacturing.
-- Experimental focal-point and optical performance evaluation.
+- Mathematical modeling of aspheric surfaces.
+- Geometric distortion control.
+- Development of lens prototypes.
+- 3D printing of optical components.
+- Experimental evaluation of focal points and aberrations.
 
-**3. Camera Technology**
-- Real-time ISP optimization.
-- Computational image reconstruction.
-- Noise reduction and image-quality evaluation.
-- Comparison with conventional image-processing pipelines.
+### 6.3. Camera Technology
 
-**4. Electronics**
-- Hardware implementations of deterministic signal processing.
-- PCB signal integrity evaluation.
-- Electronic noise analysis.
+- Optimization of real-time image processing.
+- Deterministic computational magnification.
+- Noise reduction.
+- Detail and color preservation.
+- Comparison with conventional image processing methods.
 
-**5. Scientific Research**
-- Mathematical modeling.
-- Reproducible numerical experiments.
+### 6.4. Electronics
+
+- Implementation of deterministic signal processing in hardware.
+- Evaluation of PCB signal integrity.
+- Analysis of electronic disturbances and noise.
+
+### 6.5. Scientific Research
+
+- Development of mathematical models.
+- Computational simulations.
+- Reproducible experimental testing.
+- Construction of physical prototypes.
 - Quantitative performance comparisons.
-- Engineering applications of the Quadratic Double Projection Law.
 
 ---
 
-## 🤝 Collaboration
+## 7. HOW TO TEST
 
-ChQuantum Technologies welcomes collaboration with:
+### Testing Without an Internet Connection
+
+1. Download the HTML files from the software folder.
+2. Open the files in Safari, Chrome, or another compatible browser.
+3. In the camera module, grant camera access when prompted.
+4. Activate ChQuantum processing.
+5. Adjust the available parameters.
+6. Observe the resulting transformations.
+
+**Technical Note:** Camera access and certain browser functionalities may require HTTPS or localhost. Offline operation depends on browser permissions and the implementation of each module.
+
+---
+
+## 8. ENGINEERING COLLABORATION AND PARTNERSHIPS
+
+ChQuantum Technologies seeks to establish collaborations with:
 
 - Aerospace engineers.
-- Optical and photonic engineers.
-- Electronics developers.
+- Optical and photonics engineers.
+- Lens and imaging systems specialists.
+- Electronics engineers.
 - Computer vision researchers.
+- Hardware engineering specialists.
 - Scientific institutions.
-- Hardware engineering partners.
+- Technology investors.
 
-The objective is to develop and evaluate deterministic computational architectures with practical engineering applications.
-
----
-
-## 📩 Contact & Connect
-
-- **Email:** chandeeduardo15@gmail.com
-- **Phone / WhatsApp:** +244 956 127 384
-- **ORCID:** [0009-0005-0777-963X](https://orcid.org/0009-0005-0777-963X)
+The objective is to develop, manufacture, test, and validate practical applications of the Quadratic Double Projection Law.
 
 ---
+
+## 9. CONTACT
 
 **ChQuantum Technologies**
 
-*Deterministic Mathematics. Computational Optics. Engineering Innovation.*
+**Inventor:** Emanuel Eduardo
+
+**Email:** chandeeduardo15@gmail.com
+
+**Phone / WhatsApp:** +244 956 127 384
+
+**ORCID:** [0009-0005-0777-963X](https://orcid.org/0009-0005-0777-963X)
+
+---
+
+## 10. INTELLECTUAL PROPERTY
+
+The Quadratic Double Projection Law and its engineering applications are part of the ChQuantum Technologies research project.
+
+The reproduction, implementation, or commercial exploitation of protected inventions is subject to applicable intellectual property rights.
+
+---
+
+# CHQUANTUM TECHNOLOGIES
+
+**Deterministic Mathematics. Computational Optics. Engineering Innovation.**
