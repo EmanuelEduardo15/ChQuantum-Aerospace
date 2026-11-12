@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="pt">
 <head>
@@ -197,7 +198,6 @@ startBtn.onclick=async()=>{
    render();
    video.style.display='none';
   }catch(glError){
-   // The live video remains visible even if WebGL is unavailable.
    canvas.style.display='none';
    debugMsg.textContent='Câmara ativa; processamento gráfico indisponível: '+glError.message;
   }
@@ -227,4 +227,5 @@ document.addEventListener('visibilitychange',()=>{
 });
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('SW:',e)));
 </script>
-</body></html>
+</body>
+</html>
